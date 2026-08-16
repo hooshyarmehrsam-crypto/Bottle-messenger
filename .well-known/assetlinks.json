@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "io.github.hooshyarmehrsam_crypto.twa",
+    "sha256_cert_fingerprints": ["56:EF:8F:16:C1:EB:E7:92:5D:7B:1B:2A:53:41:50:BF:6E:E6:0F:96:FB:42:62:9C:8E:36:48:D1:3F:9D:79:96"]
+  }
+}]
