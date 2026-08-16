@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>بطری پیام</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="theme-color" content="#0e3a66">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&family=Mirza:wght@400;500;700&family=Lalezar&family=Reem+Kufi:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --font-ui:'Vazirmatn','SF Arabic',sans-serif; --font-hand:'Mirza','SF Arabic',serif;
+  --navy-deep:#020b18; --navy:#071a33; --blue:#0e3a66; --blue-bright:#1e6fb8;
+  --foam:#eaf3fb; --ink:#0a1220; --paper:#f4ecd8; --paper-line:#c9b98a; --gold:#c9a24b;
+  --card:rgba(234,243,251,.06); --card-border:rgba(234,243,251,.14); --muted:#a9c3dc;
+}
+html[data-theme="light"]{
+  --navy-deep:#eaf4fd; --navy:#dcedfb; --blue:#bfe0f8; --blue-bright:#1e6fb8;
+  --foam:#0a2540; --ink:#0a1220; --paper:#fffdf6; --paper-line:#d8c9a0; --gold:#b8862f;
+  --card:rgba(10,37,64,.05); --card-border:rgba(10,37,64,.12); --muted:#4a6a8a;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{ font-family:var(--font-ui); background:radial-gradient(120% 100% at 50% 0%, var(--blue) 0%, var(--navy) 45%, var(--navy-deep) 100%);
+  color:var(--foam); min-height:100vh; }
+.app{ max-width:500px; margin:0 auto; padding:20px 18px 40px; min-height:100vh; display:flex; flex-direction:column; }
+header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.header-text{ text-align:center; flex:1; }
+.eyebrow{ font-size:11px; letter-spacing:.15em; color:var(--gold); text-transform:uppercase; font-weight:600; }
+h1{ font-size:24px; font-weight:900; margin-top:4px;
+  background:linear-gradient(90deg, var(--foam), var(--blue-bright)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.icon-btn{ background:var(--card); border:1px solid var(--card-border); color:var(--foam); width:38px; height:38px;
+  border-radius:12px; font-size:17px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.screen{ display:none; flex:1; flex-direction:column; } .screen.active{ display:flex; }
+.field-label{ font-size:12px; color:var(--muted); margin-bottom:6px; display:block; }
+input, textarea, select{ width:100%; padding:13px 14px; border-radius:12px; border:1px solid var(--card-border);
+  background:var(--card); color:var(--foam); font-family:var(--font-ui); font-size:14px; margin-bottom:12px; }
+textarea{ min-height:170px; resize:vertical; background:var(--paper); color:#2c2412;
+  font-family:var(--font-hand); font-size:21px; line-height:1.9;
+  background-image:repeating-linear-gradient(var(--paper), var(--paper) 43px, var(--paper-line) 44px); }
+textarea::placeholder{ color:#8a7c52; font-family:var(--font-ui); font-size:13.5px; }
+.btn{ border:none; cursor:pointer; font-family:inherit; font-size:14.5px; font-weight:700; border-radius:16px;
+  padding:15px 18px; display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:6px; }
+.btn:active{ transform:scale(.97); }
+.btn-primary{ background:linear-gradient(135deg, var(--blue-bright), #123a63); color:#fff; box-shadow:0 10px 24px rgba(30,111,184,.3); }
+.btn-secondary{ background:var(--card); border:1px solid var(--card-border); color:var(--foam); }
+.btn-ghost{ background:transparent; color:var(--muted); text-decoration:underline; font-weight:500; font-size:13px; width:auto; }
+.btn:disabled{ opacity:.5; }
+.top-bar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.back-btn{ background:none; border:none; color:var(--muted); font-family:inherit; font-size:13px; cursor:pointer; }
+.menu-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:6px; }
+.menu-card{ background:var(--card); border:1px solid var(--card-border); border-radius:16px; padding:18px 12px; text-align:center; cursor:pointer; }
+.menu-card:active{ transform:scale(.96); }
+.menu-card .mc-icon{ font-size:30px; margin-bottom:8px; display:block; }
+.menu-card .mc-title{ font-weight:800; font-size:14.5px; }
+.menu-card .mc-sub{ font-size:11px; color:var(--muted); margin-top:4px; }
+.home-card{ background:var(--card); border:1px solid var(--card-border); border-radius:16px; padding:18px; text-align:center; margin-bottom:16px; display:flex; align-items:center; gap:14px; text-align:right; }
+.home-card .av{ width:56px; height:56px; border-radius:50%; overflow:hidden; background:var(--navy); flex-shrink:0; display:flex;align-items:center;justify-content:center;font-size:26px; }
+.home-card .av img{ width:100%; height:100%; object-fit:cover; }
+.stat-row{ display:flex; gap:10px; width:100%; margin-bottom:14px; }
+.stat-card{ flex:1; background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:10px; text-align:center; }
+.stat-card b{ display:block; font-size:17px; color:var(--gold); }
+.stat-card span{ font-size:10px; color:var(--muted); }
+.contact-row{ display:flex; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:12px 14px; margin-bottom:10px; }
+.contact-info b{ font-size:14px; display:block; } .contact-info span{ font-size:11px; color:var(--muted); }
+.mini-btn{ background:var(--blue-bright); color:#fff; border:none; border-radius:10px; padding:8px 12px; font-size:12px; cursor:pointer; font-family:inherit; }
+.mini-btn.secondary{ background:transparent; border:1px solid var(--card-border); color:var(--muted); }
+.msg-item{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:14px; margin-bottom:10px; }
+.msg-item .from{ font-size:12px; color:var(--gold); font-weight:700; margin-bottom:6px; display:flex; justify-content:space-between; }
+.msg-item .txt{ font-family:var(--font-hand); font-size:19px; line-height:1.8; white-space:pre-wrap; color:var(--foam); }
+.msg-item img{ max-width:100%; border-radius:10px; margin-top:8px; }
+.msg-item .date{ font-size:10.5px; color:var(--muted); margin-top:8px; text-align:left; }
+.badge{ font-size:10.5px; padding:3px 9px; border-radius:20px; }
+.badge.travel{ background:rgba(201,162,75,.18); color:var(--gold); }
+.badge.arrived{ background:rgba(127,214,160,.18); color:#7fd6a0; }
+.tabs{ display:flex; gap:8px; margin-bottom:14px; }
+.tabs button{ flex:1; padding:10px; border-radius:12px; border:1px solid var(--card-border); background:transparent; color:var(--muted); font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; }
+.tabs button.active{ background:var(--blue-bright); color:#fff; border-color:var(--blue-bright); }
+.img-attach{ margin-top:6px; margin-bottom:12px; }
+.upload-btn{ display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px dashed var(--card-border); border-radius:12px; padding:10px 14px; font-size:13px; cursor:pointer; color:var(--foam); }
+.upload-btn input{ display:none; }
+.img-preview{ position:relative; margin-top:10px; display:inline-block; }
+.img-preview img{ max-width:140px; border-radius:10px; display:block; }
+.img-preview .rm{ position:absolute; top:-8px; left:-8px; background:#c0392b; color:#fff; border:none; width:22px; height:22px; border-radius:50%; font-size:12px; cursor:pointer; }
+.throw-stage{ width:100%; height:230px; position:relative; overflow:hidden; border-radius:18px;
+  background:linear-gradient(180deg, var(--navy) 0%, var(--blue) 55%, var(--blue-bright) 100%); }
+.throw-water{ position:absolute; bottom:0; left:0; right:0; height:55%; background:repeating-linear-gradient(0deg, var(--blue-bright) 0 4px, var(--blue) 4px 8px, var(--navy) 8px 16px); background-size:100% 16px; animation:pw 1.4s steps(4) infinite; }
+@keyframes pw{ from{background-position-y:0;} to{background-position-y:16px;} }
+.throw-bottle{ position:absolute; right:18%; bottom:38%; width:24px; height:50px; }
+.throw-bottle svg{ width:100%; height:100%; }
+.throw-bottle.tossing{ animation:toss 2.2s ease-in forwards; }
+@keyframes toss{ 0%{transform:translate(0,0) rotate(0deg);} 30%{transform:translate(-35%,-80px) rotate(-160deg);} 60%{transform:translate(-70%,-6px) rotate(-280deg);} 100%{transform:translate(-95%,30px) rotate(-360deg); opacity:.95;} }
+.throw-bottle.sinking{ animation:sink 1.8s ease-in forwards; }
+@keyframes sink{ 0%{transform:translate(-95%,30px) rotate(0deg); opacity:.95;} 100%{transform:translate(-95%,140px) rotate(25deg); opacity:0;} }
+.throw-status{ font-size:13.5px; color:var(--muted); text-align:center; margin-top:12px; }
+.spinner{ width:22px; height:22px; border-radius:50%; border:3px solid var(--card-border); border-top-color:var(--blue-bright); animation:spin 1s linear infinite; margin:10px auto 0; }
+@keyframes spin{ to{transform:rotate(360deg);} }
+.result-icon{ font-size:48px; text-align:center; }
+#result h2, #result p{ text-align:center; }
+#result h2{ font-size:19px; font-weight:800; margin-top:8px; }
+#result p{ font-size:13px; color:var(--muted); line-height:1.9; margin:8px 0 4px; }
+.letter-card{ background:var(--paper); color:#2c2412; border-radius:16px; padding:24px 20px; width:100%;
+  background-image:repeating-linear-gradient(var(--paper), var(--paper) 42px, var(--paper-line) 43px); transform:rotate(-1deg); }
+.letter-card .letter-text{ font-family:var(--font-hand); font-size:22px; line-height:1.95; white-space:pre-wrap; }
+.letter-card img{ max-width:100%; border-radius:10px; margin-top:14px; }
+.letter-sign{ font-family:var(--font-hand); font-size:16px; margin-top:12px; color:#4a3c1e; }
+.empty-sea{ text-align:center; color:var(--muted); font-size:13.5px; line-height:2; padding:26px 10px; }
+.err{ background:rgba(224,139,107,.15); border:1px solid rgba(224,139,107,.4); color:#e08b6b; padding:10px 14px; border-radius:10px; font-size:13px; margin-bottom:12px; display:none; }
+.hint{ font-size:11.5px; color:var(--muted); margin:6px 0 4px; }
+.quota-bar{ height:6px; background:var(--card); border-radius:6px; overflow:hidden; margin-top:6px; }
+.quota-bar > div{ height:100%; background:var(--blue-bright); }
+.seg{ display:flex; gap:8px; }
+.seg button{ flex:1; padding:10px; border-radius:10px; border:1px solid var(--card-border); background:transparent; color:var(--foam); font-family:inherit; font-size:12.5px; cursor:pointer; }
+.seg button.active{ background:var(--blue-bright); color:#fff; border-color:var(--blue-bright); }
+.settings-group{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:14px; margin-bottom:14px; }
+.settings-group h3{ font-size:13px; margin-bottom:10px; color:var(--muted); }
+.avatar-circle{ width:80px; height:80px; border-radius:50%; background:var(--card); border:2px solid var(--card-border); display:flex; align-items:center; justify-content:center; font-size:30px; overflow:hidden; margin:0 auto; }
+.avatar-circle img{ width:100%; height:100%; object-fit:cover; }
+.center{ display:flex; align-items:center; justify-content:center; flex:1; }
+@media (prefers-reduced-motion: reduce){ *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <button class="icon-btn" onclick="goTo('settings')">⚙️</button>
+    <div class="header-text"><div class="eyebrow">Message In A Bottle</div><h1>بطری پیام</h1></div>
+    <button class="icon-btn" onclick="goHome()">🏠</button>
+  </header>
+
+  <section id="loading" class="screen active"><div class="center"><div class="spinner"></div></div></section>
+
+  <!-- AUTH -->
+  <section id="auth" class="screen">
+    <div class="tabs">
+      <button id="tabLogin" class="active" onclick="switchAuthTab('login')">ورود</button>
+      <button id="tabSignup" onclick="switchAuthTab('signup')">ثبت‌نام</button>
+    </div>
+    <div class="err" id="authErr"></div>
+    <div id="loginForm">
+      <label class="field-label">آیدی</label><input type="text" id="loginId" placeholder="آیدیت رو بنویس">
+      <label class="field-label">رمز عبور</label><input type="password" id="loginPass" placeholder="رمز عبور">
+      <button class="btn btn-primary" onclick="doLogin()" id="loginBtn">ورود</button>
+    </div>
+    <div id="signupForm" style="display:none;">
+      <label class="field-label">آیدی دلخواه</label><input type="text" id="suId" placeholder="مثلا mehrsam22">
+      <label class="field-label">شماره تلفن</label><input type="tel" id="suPhone" placeholder="09xxxxxxxxx">
+      <label class="field-label">رمز عبور (حداقل ۶ کاراکتر)</label><input type="password" id="suPass" placeholder="یه رمز بساز">
+      <button class="btn btn-primary" onclick="doSignup()" id="signupBtn">ساخت اکانت</button>
+    </div>
+  </section>
+
+  <!-- PROFILE SETUP -->
+  <section id="profileSetup" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goHome()">→ برگشت</button></div>
+    <div style="text-align:center; margin-bottom:16px;">
+      <div class="avatar-circle" id="avatarPreview">🍾</div>
+      <label class="upload-btn" style="margin-top:10px;">📷 آپلود عکس پروفایل<input type="file" accept="image/*" onchange="handleAvatarSelect(event)"></label>
+    </div>
+    <label class="field-label">بیو</label>
+    <textarea id="bioInput" style="min-height:80px; font-family:var(--font-ui); font-size:14px; background:var(--card); color:var(--foam); background-image:none;" placeholder="یه چیزی درباره خودت بنویس..."></textarea>
+    <div class="err" id="profileErr"></div>
+    <button class="btn btn-primary" onclick="saveProfileSetup()" id="profileSaveBtn">ذخیره</button>
+  </section>
+
+  <!-- HOME -->
+  <section id="home" class="screen">
+    <div class="home-card">
+      <div class="av" id="homeAvatar">🍾</div>
+      <div><div style="font-weight:800; font-size:16px;" id="homeUsername"></div>
+      <div style="font-size:12px; color:var(--muted); margin-top:4px;" id="homeBio"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><b id="statSea">…</b><span>تو دریا</span></div>
+      <div class="stat-card"><b id="statMonthly">0</b><span>پیام این ماه</span></div>
+      <div class="stat-card"><b id="statVehicle">🐟</b><span>وسیله</span></div>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card" onclick="goTo('contacts')"><span class="mc-icon">👥</span><div class="mc-title">منوی آشنا</div><div class="mc-sub">پیام برای مخاطبینت</div></div>
+      <div class="menu-card" onclick="goTo('anonHub')"><span class="mc-icon">🌊</span><div class="mc-title">منوی ناشناس</div><div class="mc-sub">شانسی برای هرکسی</div></div>
+    </div>
+    <div class="menu-card" style="margin-top:12px;" onclick="goTo('groups')"><span class="mc-icon">🏝️</span><div class="mc-title">استخر دوستانه</div><div class="mc-sub">گروه با آشناهات</div></div>
+    <div class="menu-card" style="margin-top:12px;" onclick="goTo('channels')"><span class="mc-icon">📢</span><div class="mc-title">کانال‌ها</div><div class="mc-sub">پست بذار یا دنبال کن</div></div>
+    <button class="btn btn-secondary" id="adminBtn" style="display:none; margin-top:10px;" onclick="goTo('admin')">🛡️ پنل ادمین</button>
+    <button class="btn btn-ghost" style="margin:14px auto 0;" onclick="doLogout()">خروج از حساب</button>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="admin" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goHome()">→ برگشت</button><span style="font-size:12px;color:var(--gold);">پنل ادمین 🛡️</span></div>
+    <div class="tabs">
+      <button id="tabAdminStats" class="active" onclick="switchAdminTab('stats')">آمار</button>
+      <button id="tabAdminUsers" onclick="switchAdminTab('users')">کاربران</button>
+      <button id="tabAdminBottles" onclick="switchAdminTab('bottles')">بطری‌ها</button>
+    </div>
+    <div id="adminContent"></div>
+  </section>
+
+  <!-- CONTACTS -->
+  <section id="contacts" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goHome()">→ برگشت</button>
+      <span style="font-size:12px;color:var(--muted);">آیدی من: <b id="myIdShow" style="color:var(--gold);"></b></span></div>
+    <button class="btn btn-secondary" onclick="goTo('inbox')" style="margin-bottom:14px;">📥 پیام‌های من</button>
+    <div class="settings-group">
+      <h3>اضافه کردن آشنا</h3>
+      <input type="text" id="addContactId" placeholder="آیدی آشنا">
+      <input type="text" id="addContactNick" placeholder="اسمی که می‌خوای براش ذخیره بشه (اختیاری)">
+      <div class="err" id="contactErr"></div>
+      <button class="btn btn-primary" onclick="addContact()" id="addContactBtn">➕ اضافه کردن</button>
+    </div>
+    <div id="contactList"></div>
+  </section>
+
+  <!-- INBOX -->
+  <section id="inbox" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goTo('contacts')">→ برگشت</button><span style="font-size:12px;color:var(--muted);">پیام‌های من</span></div>
+    <div class="tabs">
+      <button id="tabReceived" class="active" onclick="switchInboxTab('received')">دریافتی</button>
+      <button id="tabSent" onclick="switchInboxTab('sent')">ارسالی</button>
+    </div>
+    <div id="inboxList"></div>
+  </section>
+
+  <!-- ANON HUB -->
+  <section id="anonHub" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goHome()">→ برگشت</button></div>
+    <button class="btn btn-primary" onclick="startCompose('anon')">✍️ نوشتن و انداختن بطری ناشناس</button>
+    <button class="btn btn-secondary" onclick="searchBottle()">🌊 گشتن دنبال یه بطری</button>
+    <button class="btn btn-ghost" style="margin:10px auto 0;" onclick="goTo('history')">بطری‌های من</button>
+  </section>
+
+  <!-- COMPOSE -->
+  <section id="write" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goTo(composeMode==='anon' ? 'anonHub' : 'contacts')">→ برگشت</button>
+      <span id="composeTarget" style="font-size:12px;color:var(--muted);"></span></div>
+    <label class="field-label">پیامت رو بنویس:</label>
+    <textarea id="msgInput" maxlength="5000" placeholder="یه چیزی بنویس..."></textarea>
+    <div style="text-align:left; font-size:11px; color:var(--muted); margin-top:-8px; margin-bottom:10px;"><span id="charCount">0</span>/5000</div>
+    <div class="img-attach">
+      <label class="upload-btn">📎 ضمیمه کردن عکس (اختیاری، تا ۱۰ مگ سهمیه روزانه)<input type="file" id="imgInput" accept="image/*" onchange="handleMsgImage(event)"></label>
+      <div id="imgPreviewWrap"></div>
+      <div class="quota-bar"><div id="quotaFill" style="width:0%;"></div></div>
+      <div class="hint" id="quotaText"></div>
+    </div>
+    <label class="field-label" style="margin-top:6px;">امضا / آیدی (اختیاری)</label>
+    <input type="text" id="signInput" placeholder="مثلا فقط یه اسم یا خالی بذار">
+    <div class="hint" id="composeHint"></div>
+    <div class="err" id="composeErr"></div>
+    <button class="btn btn-primary" id="throwBtn" onclick="startThrow()" disabled>🍾 انداختن داخل آب</button>
+  </section>
+
+  <!-- THROWING -->
+  <section id="throwing" class="screen">
+    <div class="throw-stage">
+      <div class="throw-water"></div>
+      <div class="throw-bottle" id="throwBottleEl">
+        <svg viewBox="0 0 90 200" fill="none">
+          <path d="M35 8 H55 V32 C55 32 68 45 68 65 V180 C68 190 60 196 45 196 C30 196 22 190 22 180 V65 C22 45 35 32 35 32 V8 Z" fill="#0e3a66" stroke="#1e6fb8" stroke-width="2"/>
+          <rect x="35" y="4" width="20" height="10" rx="3" fill="#c9a24b"/>
+          <path d="M28 70 C28 70 45 78 62 70 V175 C62 183 55 188 45 188 C35 188 28 183 28 175 Z" fill="#f4ecd8" opacity="0.85"/>
+        </svg>
+      </div>
+    </div>
+    <div class="throw-status" id="throwStatus">داره می‌ره وسط دریا...</div>
+    <div class="spinner" id="throwSpinner"></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="screen">
+    <div class="result-icon" id="resultIcon">🎉</div>
+    <h2 id="resultTitle">بطری رها شد!</h2>
+    <p id="resultText"></p>
+    <button class="btn btn-primary" onclick="goHome()">برگشت به خونه</button>
+  </section>
+
+  <!-- FOUND (anon) -->
+  <section id="found" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goTo('anonHub')">→ برگشت</button><span style="font-size:12px;color:var(--muted);">یه بطری پیدا کردی 🍾</span></div>
+    <div id="foundContent"></div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="history" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goTo('anonHub')">→ برگشت</button><span style="font-size:12px;color:var(--muted);">بطری‌های من</span></div>
+    <div id="historyList"></div>
+  </section>
+
+  <!-- GROUPS LIST -->
+  <section id="groups" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goHome()">→ برگشت</button><span style="font-size:12px;color:var(--muted);">استخر دوستانه 🏝️</span></div>
+    <div class="settings-group">
+      <h3>ساخت استخر جدید</h3>
+      <input type="text" id="newGroupName" placeholder="اسم گروه">
+      <div class="err" id="groupCreateErr"></div>
+      <button class="btn btn-primary" onclick="createGroup()" id="createGroupBtn">➕ بساز</button>
+    </div>
+    <div id="groupList"></div>
+  </section>
+
+  <!-- GROUP CHAT -->
+  <section id="groupChat" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goTo('groups')">→ برگشت</button>
+      <span style="font-size:12px;color:var(--muted);" id="groupChatTitle"></span>
+      <button class="icon-btn" style="width:32px;height:32px;font-size:14px;" onclick="toggleMembersPanel()">👥</button></div>
+    <div id="membersPanel" style="display:none;" class="settings-group">
+      <h3>اعضا</h3>
+      <div id="membersListWrap"></div>
+      <input type="text" id="addMemberId" placeholder="آیدی آشنا برای اضافه کردن به استخر" style="margin-top:10px;">
+      <div class="err" id="addMemberErr"></div>
+      <button class="btn btn-secondary" onclick="addGroupMember()">➕ اضافه کردن عضو</button>
+    </div>
+    <div id="groupMsgList" style="flex:1; overflow-y:auto; margin-bottom:12px;"></div>
+    <div id="selectivePanel" style="display:none;" class="settings-group">
+      <h3>فقط این‌ها ببینن:</h3>
+      <div id="selectiveCheckboxes"></div>
+    </div>
+    <textarea id="groupMsgInput" style="min-height:80px; font-family:var(--font-ui); font-size:14px; background:var(--card); color:var(--foam); background-image:none;" placeholder="پیامت رو بنویس..."></textarea>
+    <div class="img-attach">
+      <label class="upload-btn">📎 عکس<input type="file" id="groupImgInput" accept="image/*" onchange="handleGroupImage(event)"></label>
+      <button class="mini-btn secondary" style="margin-right:6px;" onclick="toggleSelective()">🎯 ارسال به عده خاص</button>
+      <div id="groupImgPreviewWrap"></div>
+    </div>
+    <div class="err" id="groupMsgErr"></div>
+    <button class="btn btn-primary" onclick="sendGroupMessage()">🍾 فرستادن</button>
+  </section>
+
+  <!-- CHANNELS LIST -->
+  <section id="channels" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goHome()">→ برگشت</button><span style="font-size:12px;color:var(--muted);">کانال‌ها 📢</span></div>
+    <div id="myChannelBox" class="settings-group"></div>
+    <div class="hint">همه‌ی کانال‌ها:</div>
+    <div id="channelList"></div>
+  </section>
+
+  <!-- CHANNEL FEED -->
+  <section id="channelFeed" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goTo('channels')">→ برگشت</button><span style="font-size:12px;color:var(--muted);" id="channelFeedTitle"></span></div>
+    <div id="newPostBox" style="display:none;" class="settings-group">
+      <h3>پست جدید</h3>
+      <textarea id="postInput" style="min-height:70px; font-family:var(--font-ui); font-size:14px; background:var(--card); color:var(--foam); background-image:none;" placeholder="چی تو ذهنته..."></textarea>
+      <label class="upload-btn">📎 عکس/ویدیو<input type="file" id="postMediaInput" accept="image/*,video/*" onchange="handlePostMedia(event)"></label>
+      <div id="postMediaPreview"></div>
+      <div class="err" id="postErr"></div>
+      <button class="btn btn-primary" onclick="publishPost()">📢 انتشار پست</button>
+    </div>
+    <div id="channelPostList"></div>
+  </section>
+
+  <!-- POST DETAIL / COMMENTS -->
+  <section id="postDetail" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goTo('channelFeed')">→ برگشت</button><span style="font-size:12px;color:var(--muted);">پست</span></div>
+    <div id="postDetailContent"></div>
+    <div class="hint" style="margin-top:14px;">کامنت‌ها:</div>
+    <div id="commentList" style="margin-bottom:12px;"></div>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="commentInput" placeholder="کامنت بذار..." style="margin-bottom:0; flex:1;">
+      <button class="mini-btn" onclick="postComment()" style="padding:0 16px;">فرستادن</button>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="screen">
+    <div class="top-bar"><button class="back-btn" onclick="goHome()">→ برگشت</button></div>
+    <div class="settings-group"><h3>تم برنامه</h3>
+      <div class="seg" id="themeSeg">
+        <button data-v="system" onclick="setTheme('system')">خودکار</button>
+        <button data-v="dark" onclick="setTheme('dark')">تیره</button>
+        <button data-v="light" onclick="setTheme('light')">روشن</button>
+      </div></div>
+    <div class="settings-group"><h3>فونت رابط کاربری</h3>
+      <select id="uiFontSel" onchange="setUiFont(this.value)">
+        <option value="Vazirmatn">Vazirmatn (پیش‌فرض)</option><option value="Lalezar">Lalezar</option><option value="Reem Kufi">Reem Kufi</option>
+      </select></div>
+    <div class="settings-group"><h3>فونت دست‌خط نامه‌ها</h3>
+      <select id="handFontSel" onchange="setHandFont(this.value)">
+        <option value="Mirza">Mirza (پیش‌فرض)</option><option value="Reem Kufi">Reem Kufi</option>
+      </select></div>
+    <div class="settings-group"><h3>پروفایل من</h3>
+      <button class="btn btn-secondary" onclick="goTo('profileSetup')">ویرایش پروفایل</button></div>
+  </section>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ggtidzconjqdxmficjxi.supabase.co";
+const SUPABASE_KEY = "sb_publishable_VvI06A1_pmBDoBlUeN-Kxg_ENkb1FyM";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+
+const DAILY_QUOTA_BYTES = 10 * 1024 * 1024; // 10MB
+const JETSKI_THRESHOLD = 1000;
+
+let currentUser = null;
+let currentProfile = null;
+let composeMode = 'anon';
+let composeContact = null;
+let pendingMsgImage = null; // {blob, bytes}
+let pendingAvatarBlob = null;
+
+/* ---------------- navigation ---------------- */
+function goTo(screen){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(screen).classList.add('active');
+  if(screen === 'home') refreshHome();
+  if(screen === 'contacts') renderContacts();
+  if(screen === 'inbox') renderInboxCurrentTab();
+  if(screen === 'history') renderHistory();
+  if(screen === 'settings') renderSettings();
+  if(screen === 'profileSetup') prefillProfile();
+  if(screen === 'admin') renderAdminCurrentTab();
+  if(screen === 'groups') renderGroups();
+  if(screen === 'channels') renderChannels();
+}
+function goHome(){ goTo('home'); }
+
+/* ---------------- local settings ---------------- */
+function getLocalSettings(){
+  try{ return JSON.parse(localStorage.getItem('bottle-settings')||'{}'); }catch(e){ return {}; }
+}
+function saveLocalSettings(s){ try{ localStorage.setItem('bottle-settings', JSON.stringify(s)); }catch(e){} }
+function applySettings(){
+  const s = Object.assign({theme:'system', uiFont:'Vazirmatn', handFont:'Mirza'}, getLocalSettings());
+  applyTheme(s.theme);
+  document.documentElement.style.setProperty('--font-ui', "'" + s.uiFont + "','SF Arabic',sans-serif");
+  document.documentElement.style.setProperty('--font-hand', "'" + s.handFont + "','SF Arabic',serif");
+}
+function applyTheme(mode){
+  let eff = mode;
+  if(mode === 'system'){ eff = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light':'dark'; }
+  document.documentElement.setAttribute('data-theme', eff);
+}
+function setTheme(mode){ const s=Object.assign({},getLocalSettings()); s.theme=mode; saveLocalSettings(s); applyTheme(mode); renderSettings(); }
+function setUiFont(f){ const s=Object.assign({},getLocalSettings()); s.uiFont=f; saveLocalSettings(s); applySettings(); }
+function setHandFont(f){ const s=Object.assign({},getLocalSettings()); s.handFont=f; saveLocalSettings(s); applySettings(); }
+function renderSettings(){
+  const s = Object.assign({theme:'system', uiFont:'Vazirmatn', handFont:'Mirza'}, getLocalSettings());
+  document.querySelectorAll('#themeSeg button').forEach(b => b.classList.toggle('active', b.dataset.v===s.theme));
+  $('uiFontSel').value = s.uiFont; $('handFontSel').value = s.handFont;
+}
+
+/* ---------------- auth ---------------- */
+function switchAuthTab(tab){
+  $('tabLogin').classList.toggle('active', tab==='login'); $('tabSignup').classList.toggle('active', tab==='signup');
+  $('loginForm').style.display = tab==='login'?'block':'none'; $('signupForm').style.display = tab==='signup'?'block':'none';
+  hideErr('authErr');
+}
+function showErr(id,msg){ const e=$(id); e.textContent=msg; e.style.display='block'; }
+function hideErr(id){ $(id).style.display='none'; }
+function idToEmail(id){ return id.trim().toLowerCase().replace(/[^a-z0-9_]/g,'') + '@bottle.local'; }
+
+async function doSignup(){
+  hideErr('authErr');
+  const id=$('suId').value.trim(), phone=$('suPhone').value.trim(), pass=$('suPass').value;
+  if(!id||!phone||!pass){ showErr('authErr','همه فیلدا رو پر کن'); return; }
+  if(pass.length<6){ showErr('authErr','رمز باید حداقل ۶ کاراکتر باشه'); return; }
+  $('signupBtn').disabled=true; $('signupBtn').textContent='در حال ساخت...';
+  try{
+    const email = idToEmail(id);
+    const { data, error } = await sb.auth.signUp({ email, password: pass });
+    if(error) throw error;
+    const userId = data.user.id;
+    const { error: profErr } = await sb.from('profiles').insert({ id:userId, username:id, phone });
+    if(profErr){
+      showErr('authErr', profErr.code==='23505' ? 'این آیدی قبلاً گرفته شده' : profErr.message);
+      $('signupBtn').disabled=false; $('signupBtn').textContent='ساخت اکانت'; return;
+    }
+    window.location.reload();
+    return;
+  }catch(e){ showErr('authErr', e.message || 'یه مشکلی پیش اومد'); }
+  $('signupBtn').disabled=false; $('signupBtn').textContent='ساخت اکانت';
+}
+async function doLogin(){
+  hideErr('authErr');
+  const id=$('loginId').value.trim(), pass=$('loginPass').value;
+  if(!id||!pass){ showErr('authErr','آیدی و رمز رو بنویس'); return; }
+  $('loginBtn').disabled=true; $('loginBtn').textContent='در حال ورود...';
+  try{
+    const email = idToEmail(id);
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if(error) throw error;
+    window.location.reload();
+  }catch(e){ showErr('authErr','آیدی یا رمز اشتباهه'); }
+  $('loginBtn').disabled=false; $('loginBtn').textContent='ورود';
+}
+async function doLogout(){ await sb.auth.signOut(); window.location.reload(); }
+
+async function loadSession(){
+  const { data: { user } } = await sb.auth.getUser();
+  currentUser = user;
+  if(user){
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+    currentProfile = profile;
+  }
+}
+
+/* ---------------- profile ---------------- */
+async function prefillProfile(){
+  $('bioInput').value = currentProfile && currentProfile.bio ? currentProfile.bio : '';
+  $('avatarPreview').innerHTML = currentProfile && currentProfile.avatar_url ? `<img src="${currentProfile.avatar_url}">` : '🍾';
+  pendingAvatarBlob = null;
+}
+function handleAvatarSelect(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW=300, scale=Math.min(1,maxW/img.width);
+      const canvas=document.createElement('canvas'); canvas.width=img.width*scale; canvas.height=img.height*scale;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      canvas.toBlob(blob => { pendingAvatarBlob=blob; $('avatarPreview').innerHTML=`<img src="${canvas.toDataURL('image/jpeg',0.8)}">`; }, 'image/jpeg', 0.8);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+async function saveProfileSetup(){
+  hideErr('profileErr'); $('profileSaveBtn').disabled=true; $('profileSaveBtn').textContent='در حال ذخیره...';
+  try{
+    const bio = $('bioInput').value.trim();
+    let avatar_url = currentProfile ? currentProfile.avatar_url : null;
+    if(pendingAvatarBlob){
+      const path = currentUser.id + '/avatar.jpg';
+      const { error: upErr } = await sb.storage.from('avatars').upload(path, pendingAvatarBlob, { upsert:true, contentType:'image/jpeg' });
+      if(upErr) throw upErr;
+      const { data: pub } = sb.storage.from('avatars').getPublicUrl(path);
+      avatar_url = pub.publicUrl + '?t=' + Date.now();
+    }
+    const { error } = await sb.from('profiles').update({ bio, avatar_url }).eq('id', currentUser.id);
+    if(error) throw error;
+    await loadSession(); goHome();
+  }catch(e){ showErr('profileErr', e.message || 'ذخیره نشد'); }
+  $('profileSaveBtn').disabled=false; $('profileSaveBtn').textContent='ذخیره';
+}
+
+/* ---------------- home ---------------- */
+async function refreshHome(){
+  if(!currentProfile) await loadSession();
+  $('homeUsername').textContent = currentProfile.username;
+  $('homeBio').textContent = currentProfile.bio || 'هنوز بیویی ننوشته';
+  $('homeAvatar').innerHTML = currentProfile.avatar_url ? `<img src="${currentProfile.avatar_url}">` : '🍾';
+  try{
+    const { count } = await sb.from('anon_bottles').select('id', {count:'exact', head:true}).eq('claimed', false);
+    $('statSea').textContent = count ?? 0;
+  }catch(e){ $('statSea').textContent='0'; }
+  const monthCount = await getMonthlyMessageCount();
+  $('statMonthly').textContent = monthCount;
+  $('statVehicle').textContent = (currentProfile.is_admin || monthCount >= JETSKI_THRESHOLD) ? '🚤' : '🐟';
+  $('adminBtn').style.display = currentProfile.is_admin ? 'flex' : 'none';
+}
+async function getMonthlyMessageCount(){
+  const since = new Date(Date.now() - 30*24*60*60*1000).toISOString();
+  try{
+    const { count } = await sb.from('messages').select('id', {count:'exact', head:true}).eq('sender_id', currentUser.id).gte('created_at', since);
+    return count ?? 0;
+  }catch(e){ return 0; }
+}
+
+/* ---------------- contacts ---------------- */
+async function renderContacts(){
+  $('myIdShow').textContent = currentProfile.username;
+  const wrap = $('contactList');
+  wrap.innerHTML = '<div class="spinner"></div>';
+  const { data: rows, error } = await sb.from('contacts').select('id, contact_id, nickname').eq('owner_id', currentUser.id).order('created_at', {ascending:false});
+  if(error || !rows || rows.length===0){ wrap.innerHTML = '<div class="empty-sea">هنوز آشنایی اضافه نکردی.</div>'; return; }
+  const ids = rows.map(r=>r.contact_id);
+  const { data: profiles } = await sb.from('profiles').select('id, username, avatar_url').in('id', ids);
+  const profMap = {}; (profiles||[]).forEach(p=>profMap[p.id]=p);
+  wrap.innerHTML = rows.map(r => {
+    const p = profMap[r.contact_id] || {username:'؟'};
+    const display = r.nickname || p.username;
+    return `<div class="contact-row">
+      <div class="contact-info"><b>${escapeHtml(display)}</b><span>${escapeHtml(p.username)}</span></div>
+      <div style="display:flex; gap:6px;">
+        <button class="mini-btn" onclick='startCompose("contact", ${JSON.stringify({id:r.contact_id, name:display})})'>✍️ پیام</button>
+        <button class="mini-btn secondary" onclick="removeContact('${r.id}')">حذف</button>
+      </div></div>`;
+  }).join('');
+}
+async function addContact(){
+  hideErr('contactErr');
+  const idText = $('addContactId').value.trim();
+  const nick = $('addContactNick').value.trim();
+  if(!idText){ showErr('contactErr','آیدی رو بنویس'); return; }
+  $('addContactBtn').disabled=true;
+  try{
+    const { data: found, error: fErr } = await sb.from('profiles').select('id, username').eq('username', idText).maybeSingle();
+    if(fErr || !found){ showErr('contactErr','کاربری با این آیدی پیدا نشد'); $('addContactBtn').disabled=false; return; }
+    if(found.id === currentUser.id){ showErr('contactErr','این آیدی خودتونه!'); $('addContactBtn').disabled=false; return; }
+    const { error } = await sb.from('contacts').insert({ owner_id: currentUser.id, contact_id: found.id, nickname: nick || null });
+    if(error){
+      showErr('contactErr', error.code==='23505' ? 'این آشنا قبلاً اضافه شده' : error.message);
+      $('addContactBtn').disabled=false; return;
+    }
+    $('addContactId').value=''; $('addContactNick').value='';
+    renderContacts();
+  }catch(e){ showErr('contactErr', e.message||'خطا'); }
+  $('addContactBtn').disabled=false;
+}
+async function removeContact(rowId){
+  await sb.from('contacts').delete().eq('id', rowId);
+  renderContacts();
+}
+
+/* ---------------- compose ---------------- */
+function startCompose(mode, contact){
+  composeMode = mode; composeContact = contact || null;
+  pendingMsgImage = null;
+  $('msgInput').value=''; $('signInput').value=''; $('imgPreviewWrap').innerHTML=''; hideErr('composeErr');
+  $('composeTarget').textContent = mode==='anon' ? 'ناشناس 🌊' : ('برای ' + contact.name);
+  $('composeHint').textContent = mode==='anon' ? '۵٪ احتمال داره بطری وسط راه گم بشه و هیچ‌وقت نرسه 🌊' : 'با ماهی ۱ تا ۵ دقیقه طول می‌کشه برسه (یا با جت‌اسکی زیر ۱۰ ثانیه اگه بازش کرده باشی)';
+  updateCharCount();
+  updateQuotaDisplay();
+  goTo('write');
+}
+$('msgInput').addEventListener('input', updateCharCount);
+function updateCharCount(){
+  const v = $('msgInput').value;
+  $('charCount').textContent = v.length;
+  $('throwBtn').disabled = v.trim().length===0;
+}
+async function getTodayUsage(){
+  const today = new Date().toISOString().slice(0,10);
+  const { data } = await sb.from('upload_quota').select('bytes_used').eq('user_id', currentUser.id).eq('day', today).maybeSingle();
+  return data ? data.bytes_used : 0;
+}
+async function updateQuotaDisplay(){
+  const used = await getTodayUsage();
+  const pct = Math.min(100, (used/DAILY_QUOTA_BYTES)*100);
+  $('quotaFill').style.width = pct+'%';
+  $('quotaText').textContent = 'مصرف امروز: ' + (used/1024/1024).toFixed(1) + ' از ۱۰ مگ';
+}
+function handleMsgImage(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW=800, scale=Math.min(1,maxW/img.width);
+      const canvas=document.createElement('canvas'); canvas.width=img.width*scale; canvas.height=img.height*scale;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      canvas.toBlob(async blob => {
+        const used = await getTodayUsage();
+        if(used + blob.size > DAILY_QUOTA_BYTES){
+          showErr('composeErr','سهمیه‌ی ۱۰ مگ امروزت پره، فردا دوباره امتحان کن');
+          $('imgInput').value=''; return;
+        }
+        pendingMsgImage = { blob, bytes: blob.size };
+        $('imgPreviewWrap').innerHTML = `<div class="img-preview"><img src="${canvas.toDataURL('image/jpeg',0.75)}"><button class="rm" onclick="removeMsgImage()">✕</button></div>`;
+      }, 'image/jpeg', 0.75);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function removeMsgImage(){ pendingMsgImage=null; $('imgPreviewWrap').innerHTML=''; $('imgInput').value=''; }
+
+async function uploadMsgImageIfAny(){
+  if(!pendingMsgImage) return null;
+  const path = currentUser.id + '/' + Date.now() + '.jpg';
+  const { error } = await sb.storage.from('media').upload(path, pendingMsgImage.blob, { contentType:'image/jpeg' });
+  if(error) throw error;
+  const { data: pub } = sb.storage.from('media').getPublicUrl(path);
+  const today = new Date().toISOString().slice(0,10);
+  const used = await getTodayUsage();
+  await sb.from('upload_quota').upsert({ user_id: currentUser.id, day: today, bytes_used: used + pendingMsgImage.bytes });
+  return pub.publicUrl;
+}
+
+async function startThrow(){
+  hideErr('composeErr');
+  const text = $('msgInput').value.trim(); if(!text) return;
+  const signature = $('signInput').value.trim();
+  goTo('throwing');
+  const bottleEl = $('throwBottleEl'); const statusEl = $('throwStatus');
+  bottleEl.className = 'throw-bottle tossing'; statusEl.textContent='داره پرت می‌شه تو آب...'; $('throwSpinner').style.display='block';
+
+  setTimeout(async () => {
+    statusEl.textContent = 'داره شناور می‌شه وسط موج‌ها...';
+    try{
+      let imageUrl = null;
+      try{ imageUrl = await uploadMsgImageIfAny(); }catch(e){}
+
+      if(composeMode === 'anon'){
+        const lost = Math.random() < 0.05;
+        if(lost){
+          bottleEl.className='throw-bottle sinking'; statusEl.textContent='بطری داره فرو می‌ره...';
+          setTimeout(()=>showResult('anon-lost'), 1400);
+          return;
+        }
+        const { error } = await sb.from('anon_bottles').insert({ sender_id: currentUser.id, body:text, image_url:imageUrl, signature: signature||null });
+        if(error) throw error;
+        statusEl.textContent='بطری رفت!';
+        setTimeout(()=>showResult('anon-sent'), 800);
+      }else{
+        const monthCount = await getMonthlyMessageCount();
+        const jetski = currentProfile.is_admin || monthCount >= JETSKI_THRESHOLD;
+        const delaySec = jetski ? (5 + Math.random()*5) : (60 + Math.random()*240);
+        const deliverAt = new Date(Date.now() + delaySec*1000).toISOString();
+        const { error } = await sb.from('messages').insert({
+          sender_id: currentUser.id, recipient_id: composeContact.id, body:text,
+          image_url:imageUrl, signature: signature||null, vehicle: jetski?'jetski':'fish', deliver_at: deliverAt
+        });
+        if(error) throw error;
+        statusEl.textContent='بطری رفت!';
+        window._lastDelaySec = Math.round(delaySec); window._lastVehicle = jetski?'jetski':'fish';
+        setTimeout(()=>showResult('contact-sent'), 800);
+      }
+    }catch(e){
+      statusEl.textContent = 'یه مشکلی پیش اومد :(';
+      setTimeout(()=>{ goTo('write'); showErr('composeErr', e.message||'ارسال نشد، دوباره امتحان کن'); }, 1200);
+    }
+  }, 1200);
+}
+
+function showResult(kind){
+  if(kind==='anon-lost'){
+    $('resultIcon').textContent='🌊'; $('resultTitle').textContent='بطری گم شد...';
+    $('resultText').textContent='وسط راه یه موج بزرگ بطری رو با خودش برد. پیامت هیچ‌وقت نرسید، ولی حداقل قصه‌ش قشنگ بود.';
+  }else if(kind==='anon-sent'){
+    $('resultIcon').textContent='🎉'; $('resultTitle').textContent='بطری رها شد!';
+    $('resultText').textContent='پیامت الان شناوره وسط دریا و منتظره یکی پیداش کنه.';
+  }else{
+    $('resultIcon').textContent = window._lastVehicle==='jetski' ? '🚤' : '🐟';
+    $('resultTitle').textContent='بطری رها شد!';
+    const mins = Math.max(1, Math.round(window._lastDelaySec/60));
+    $('resultText').textContent = window._lastVehicle==='jetski'
+      ? ('با جت‌اسکی می‌ره، تا ' + window._lastDelaySec + ' ثانیه دیگه می‌رسه به ' + composeContact.name + '.')
+      : ('با ماهی می‌ره، حدود ' + mins + ' دقیقه دیگه می‌رسه به ' + composeContact.name + '.');
+  }
+  goTo('result');
+}
+
+/* ---------------- anon search ---------------- */
+async function searchBottle(){
+  goTo('found');
+  $('foundContent').innerHTML = '<div class="spinner"></div>';
+  const { data: candidates } = await sb.from('anon_bottles').select('*').eq('claimed', false).neq('sender_id', currentUser.id).limit(30);
+  if(!candidates || candidates.length===0){
+    $('foundContent').innerHTML = `<div class="empty-sea">🌌<br>دریا الان خالیه...<br>هنوز هیچ بطری‌ای منتظر پیدا شدن نیست.<br>خودت اولین نفر باش که یکی می‌ندازه!</div>`;
+    return;
+  }
+  const pool = [...candidates];
+  while(pool.length){
+    const idx = Math.floor(Math.random()*pool.length);
+    const bottle = pool.splice(idx,1)[0];
+    const { data: updated, error } = await sb.from('anon_bottles').update({ claimed:true, claimed_by: currentUser.id }).eq('id', bottle.id).eq('claimed', false).select().maybeSingle();
+    if(updated){
+      const d = new Date(bottle.created_at); const dateStr = isNaN(d)?'':d.toLocaleDateString('fa-IR');
+      $('foundContent').innerHTML = `
+        <div class="letter-card">
+          <div class="letter-text">${escapeHtml(bottle.body)}</div>
+          ${bottle.image_url ? `<img src="${bottle.image_url}">` : ''}
+          ${bottle.signature ? `<div class="letter-sign">— ${escapeHtml(bottle.signature)}</div>` : ''}
+        </div>
+        <div style="margin-top:16px; display:flex; flex-direction:column; gap:10px;">
+          <button class="btn btn-secondary" onclick="searchBottle()">🌊 گشتن دنبال یه بطری دیگه</button>
+          <button class="btn btn-ghost" style="margin:0 auto;" onclick="startCompose('anon')">جواب بده و خودت هم یکی بنداز</button>
+        </div>`;
+      return;
+    }
+  }
+  $('foundContent').innerHTML = `<div class="empty-sea">همه‌ی بطری‌ها همین الان توسط بقیه پیدا شدن. یه بار دیگه امتحان کن!</div>`;
+}
+
+/* ---------------- inbox ---------------- */
+let inboxTab = 'received';
+function switchInboxTab(tab){
+  inboxTab = tab;
+  $('tabReceived').classList.toggle('active', tab==='received');
+  $('tabSent').classList.toggle('active', tab==='sent');
+  renderInboxCurrentTab();
+}
+function renderInboxCurrentTab(){ inboxTab==='received' ? renderInboxReceived() : renderInboxSent(); }
+
+async function renderInboxReceived(){
+  const wrap = $('inboxList'); wrap.innerHTML = '<div class="spinner"></div>';
+  const { data: rows } = await sb.from('messages').select('*').eq('recipient_id', currentUser.id).order('created_at', {ascending:false});
+  if(!rows || rows.length===0){ wrap.innerHTML='<div class="empty-sea">هنوز پیامی برات نرسیده.</div>'; return; }
+  const senderIds = [...new Set(rows.map(r=>r.sender_id))];
+  const { data: profiles } = await sb.from('profiles').select('id, username').in('id', senderIds);
+  const profMap = {}; (profiles||[]).forEach(p=>profMap[p.id]=p.username);
+  wrap.innerHTML = rows.map(m => {
+    const d = new Date(m.created_at); const dateStr = isNaN(d)?'':d.toLocaleDateString('fa-IR');
+    return `<div class="msg-item">
+      <div class="from"><span>از طرف: ${escapeHtml(profMap[m.sender_id]||'؟')}</span><span>${m.vehicle==='jetski'?'🚤':'🐟'}</span></div>
+      <div class="txt">${escapeHtml(m.body)}</div>
+      ${m.image_url ? `<img src="${m.image_url}">` : ''}
+      ${m.signature ? `<div class="letter-sign" style="color:var(--foam);">— ${escapeHtml(m.signature)}</div>` : ''}
+      <div class="date">${dateStr}</div>
+    </div>`;
+  }).join('');
+}
+async function renderInboxSent(){
+  const wrap = $('inboxList'); wrap.innerHTML = '<div class="spinner"></div>';
+  const { data: rows } = await sb.from('messages').select('*').eq('sender_id', currentUser.id).order('created_at', {ascending:false});
+  if(!rows || rows.length===0){ wrap.innerHTML='<div class="empty-sea">هنوز پیامی نفرستادی.</div>'; return; }
+  const recIds = [...new Set(rows.map(r=>r.recipient_id))];
+  const { data: profiles } = await sb.from('profiles').select('id, username').in('id', recIds);
+  const profMap = {}; (profiles||[]).forEach(p=>profMap[p.id]=p.username);
+  const now = Date.now();
+  wrap.innerHTML = rows.map(m => {
+    const arrived = new Date(m.deliver_at).getTime() <= now;
+    const d = new Date(m.created_at); const dateStr = isNaN(d)?'':d.toLocaleDateString('fa-IR');
+    return `<div class="msg-item">
+      <div class="from"><span>برای: ${escapeHtml(profMap[m.recipient_id]||'؟')}</span>
+        <span class="badge ${arrived?'arrived':'travel'}">${arrived?'✅ رسید':'⏳ در راه'}</span></div>
+      <div class="txt">${escapeHtml(m.body)}</div>
+      ${m.image_url ? `<img src="${m.image_url}">` : ''}
+      <div class="date">${dateStr}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------------- history ---------------- */
+async function renderHistory(){
+  const wrap = $('historyList'); wrap.innerHTML = '<div class="spinner"></div>';
+  const { data: rows } = await sb.from('anon_bottles').select('*').eq('sender_id', currentUser.id).order('created_at', {ascending:false});
+  if(!rows || rows.length===0){ wrap.innerHTML='<div class="empty-sea">هنوز هیچ بطری ناشناسی ننداختی.</div>'; return; }
+  wrap.innerHTML = rows.map(b => {
+    const d = new Date(b.created_at); const dateStr = isNaN(d)?'':d.toLocaleDateString('fa-IR');
+    return `<div class="stat-card" style="text-align:right; margin-bottom:10px;">
+      <div style="font-family:var(--font-hand); font-size:18px; margin-bottom:8px; white-space:pre-wrap;">${escapeHtml(b.body)}</div>
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted);">
+        <span style="color:${b.claimed?'#7fd6a0':'var(--gold)'};">${b.claimed?'🍾 یکی پیداش کرد':'🌊 هنوز تو دریاست'}</span><span>${dateStr}</span>
+      </div></div>`;
+  }).join('');
+}
+
+/* ---------------- admin ---------------- */
+let adminTab = 'stats';
+function switchAdminTab(tab){
+  adminTab = tab;
+  $('tabAdminStats').classList.toggle('active', tab==='stats');
+  $('tabAdminUsers').classList.toggle('active', tab==='users');
+  $('tabAdminBottles').classList.toggle('active', tab==='bottles');
+  renderAdminCurrentTab();
+}
+function renderAdminCurrentTab(){
+  if(adminTab==='stats') renderAdminStats();
+  else if(adminTab==='users') renderAdminUsers();
+  else renderAdminBottles();
+}
+async function renderAdminStats(){
+  const wrap = $('adminContent'); wrap.innerHTML = '<div class="spinner"></div>';
+  const [{count: userCount}, {count: msgCount}, {count: bottleTotal}, {count: bottleInSea}] = await Promise.all([
+    sb.from('profiles').select('id', {count:'exact', head:true}),
+    sb.from('messages').select('id', {count:'exact', head:true}),
+    sb.from('anon_bottles').select('id', {count:'exact', head:true}),
+    sb.from('anon_bottles').select('id', {count:'exact', head:true}).eq('claimed', false)
+  ]);
+  wrap.innerHTML = `
+    <div class="stat-row">
+      <div class="stat-card"><b>${userCount ?? 0}</b><span>کل کاربرا</span></div>
+      <div class="stat-card"><b>${msgCount ?? 0}</b><span>کل پیام‌ها</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><b>${bottleTotal ?? 0}</b><span>کل بطری‌های ناشناس</span></div>
+      <div class="stat-card"><b>${bottleInSea ?? 0}</b><span>الان تو دریا</span></div>
+    </div>`;
+}
+async function renderAdminUsers(){
+  const wrap = $('adminContent'); wrap.innerHTML = '<div class="spinner"></div>';
+  const { data: rows } = await sb.from('profiles').select('id, username, phone, is_admin, created_at').order('created_at', {ascending:false});
+  if(!rows || rows.length===0){ wrap.innerHTML='<div class="empty-sea">کاربری نیست.</div>'; return; }
+  wrap.innerHTML = rows.map(u => `
+    <div class="contact-row">
+      <div class="contact-info"><b>${escapeHtml(u.username)}${u.is_admin?' 🛡️':''}</b><span>${escapeHtml(u.phone||'')}</span></div>
+      <button class="mini-btn secondary" onclick="deleteUserProfile('${u.id}','${escapeHtml(u.username)}')" ${u.id===currentUser.id?'disabled':''}>حذف</button>
+    </div>`).join('');
+}
+async function deleteUserProfile(id, username){
+  if(!confirm('مطمئنی می‌خوای پروفایل «' + username + '» رو حذف کنی؟')) return;
+  await sb.from('profiles').delete().eq('id', id);
+  renderAdminUsers();
+}
+async function renderAdminBottles(){
+  const wrap = $('adminContent'); wrap.innerHTML = '<div class="spinner"></div>';
+  const { data: rows } = await sb.from('anon_bottles').select('*').order('created_at', {ascending:false}).limit(50);
+  if(!rows || rows.length===0){ wrap.innerHTML='<div class="empty-sea">بطری‌ای نیست.</div>'; return; }
+  wrap.innerHTML = rows.map(b => `
+    <div class="msg-item">
+      <div class="from"><span>${b.claimed?'✅ پیدا شده':'🌊 تو دریا'}</span>
+        <button class="mini-btn secondary" onclick="deleteBottle('${b.id}')">حذف</button></div>
+      <div class="txt">${escapeHtml(b.body)}</div>
+      ${b.image_url ? `<img src="${b.image_url}">` : ''}
+    </div>`).join('');
+}
+async function deleteBottle(id){
+  if(!confirm('این بطری حذف بشه؟')) return;
+  await sb.from('anon_bottles').delete().eq('id', id);
+  renderAdminBottles();
+}
+
+/* ---------------- groups ---------------- */
+let currentGroup = null;
+let pendingGroupImage = null;
+let selectiveMode = false;
+let groupMembersCache = [];
+
+async function renderGroups(){
+  const wrap = $('groupList'); wrap.innerHTML = '<div class="spinner"></div>';
+  const { data: rows, error } = await sb.from('groups').select('*').order('created_at', {ascending:false});
+  if(error || !rows || rows.length===0){ wrap.innerHTML = '<div class="empty-sea">هنوز تو هیچ استخری نیستی. یکی بساز!</div>'; return; }
+  wrap.innerHTML = rows.map(g => `
+    <div class="contact-row" style="cursor:pointer;" onclick='openGroup(${JSON.stringify({id:g.id, name:g.name})})'>
+      <div class="contact-info"><b>🏝️ ${escapeHtml(g.name)}</b></div>
+      <span class="mini-btn">باز کردن</span>
+    </div>`).join('');
+}
+async function createGroup(){
+  hideErr('groupCreateErr');
+  const name = $('newGroupName').value.trim();
+  if(!name){ showErr('groupCreateErr','اسم گروه رو بنویس'); return; }
+  $('createGroupBtn').disabled = true;
+  try{
+    const { data: g, error } = await sb.from('groups').insert({ name, owner_id: currentUser.id }).select().single();
+    if(error) throw error;
+    await sb.from('group_members').insert({ group_id: g.id, user_id: currentUser.id });
+    $('newGroupName').value='';
+    renderGroups();
+  }catch(e){ showErr('groupCreateErr', e.message||'ساخته نشد'); }
+  $('createGroupBtn').disabled = false;
+}
+async function openGroup(g){
+  currentGroup = g;
+  $('groupChatTitle').textContent = g.name;
+  $('membersPanel').style.display = 'none';
+  $('selectivePanel').style.display = 'none';
+  selectiveMode = false;
+  $('groupMsgInput').value=''; pendingGroupImage=null; $('groupImgPreviewWrap').innerHTML='';
+  goTo('groupChat');
+  await loadGroupMembers();
+  await loadGroupMessages();
+}
+function toggleMembersPanel(){
+  const p = $('membersPanel');
+  p.style.display = p.style.display==='none' ? 'block' : 'none';
+}
+async function loadGroupMembers(){
+  const { data: rows } = await sb.from('group_members').select('user_id').eq('group_id', currentGroup.id);
+  const ids = (rows||[]).map(r=>r.user_id);
+  const { data: profiles } = await sb.from('profiles').select('id, username').in('id', ids);
+  groupMembersCache = profiles || [];
+  $('membersListWrap').innerHTML = groupMembersCache.map(p => `<div style="font-size:13px; padding:4px 0;">${escapeHtml(p.username)}${p.id===currentUser.id?' (خودت)':''}</div>`).join('');
+}
+async function addGroupMember(){
+  hideErr('addMemberErr');
+  const idText = $('addMemberId').value.trim();
+  if(!idText) return;
+  const { data: found } = await sb.from('profiles').select('id, username').eq('username', idText).maybeSingle();
+  if(!found){ showErr('addMemberErr','کاربری با این آیدی پیدا نشد'); return; }
+  const { error } = await sb.from('group_members').insert({ group_id: currentGroup.id, user_id: found.id });
+  if(error){ showErr('addMemberErr', error.code==='23505' ? 'قبلاً عضو شده' : error.message); return; }
+  $('addMemberId').value='';
+  loadGroupMembers();
+}
+async function loadGroupMessages(){
+  const wrap = $('groupMsgList'); wrap.innerHTML = '<div class="spinner"></div>';
+  const { data: rows } = await sb.from('group_messages').select('*').eq('group_id', currentGroup.id).order('created_at', {ascending:true});
+  if(!rows || rows.length===0){ wrap.innerHTML = '<div class="empty-sea">هنوز پیامی تو این استخر نیست.</div>'; return; }
+  const senderIds = [...new Set(rows.map(r=>r.sender_id))];
+  const { data: profiles } = await sb.from('profiles').select('id, username').in('id', senderIds);
+  const profMap = {}; (profiles||[]).forEach(p=>profMap[p.id]=p.username);
+  wrap.innerHTML = rows.map(m => {
+    const d = new Date(m.created_at); const timeStr = isNaN(d)?'':d.toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="msg-item">
+      <div class="from"><span>${escapeHtml(profMap[m.sender_id]||'؟')}${m.visible_to?' 🎯':''}</span><span>${timeStr}</span></div>
+      <div class="txt">${escapeHtml(m.body)}</div>
+      ${m.image_url ? `<img src="${m.image_url}">` : ''}
+    </div>`;
+  }).join('');
+}
+function toggleSelective(){
+  selectiveMode = !selectiveMode;
+  const p = $('selectivePanel');
+  if(selectiveMode){
+    p.style.display = 'block';
+    $('selectiveCheckboxes').innerHTML = groupMembersCache.filter(m=>m.id!==currentUser.id).map(m =>
+      `<label style="display:flex; align-items:center; gap:8px; font-size:13px; padding:6px 0;">
+        <input type="checkbox" class="selMemberChk" value="${m.id}"> ${escapeHtml(m.username)}
+      </label>`).join('') || '<div class="hint">هیچ عضو دیگه‌ای نیست</div>';
+  }else{ p.style.display='none'; }
+}
+function handleGroupImage(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW=800, scale=Math.min(1,maxW/img.width);
+      const canvas=document.createElement('canvas'); canvas.width=img.width*scale; canvas.height=img.height*scale;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      canvas.toBlob(async blob => {
+        const used = await getTodayUsage();
+        if(used + blob.size > DAILY_QUOTA_BYTES){ showErr('groupMsgErr','سهمیه‌ی ۱۰ مگ امروزت پره'); $('groupImgInput').value=''; return; }
+        pendingGroupImage = { blob, bytes: blob.size };
+        $('groupImgPreviewWrap').innerHTML = `<div class="img-preview"><img src="${canvas.toDataURL('image/jpeg',0.75)}"><button class="rm" onclick="removeGroupImage()">✕</button></div>`;
+      }, 'image/jpeg', 0.75);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function removeGroupImage(){ pendingGroupImage=null; $('groupImgPreviewWrap').innerHTML=''; $('groupImgInput').value=''; }
+
+async function sendGroupMessage(){
+  hideErr('groupMsgErr');
+  const text = $('groupMsgInput').value.trim();
+  if(!text) return;
+  try{
+    let imageUrl = null;
+    if(pendingGroupImage){
+      const path = currentUser.id + '/' + Date.now() + '.jpg';
+      const { error: upErr } = await sb.storage.from('media').upload(path, pendingGroupImage.blob, { contentType:'image/jpeg' });
+      if(upErr) throw upErr;
+      const { data: pub } = sb.storage.from('media').getPublicUrl(path);
+      imageUrl = pub.publicUrl;
+      const today = new Date().toISOString().slice(0,10);
+      const used = await getTodayUsage();
+      await sb.from('upload_quota').upsert({ user_id: currentUser.id, day: today, bytes_used: used + pendingGroupImage.bytes });
+    }
+    let visibleTo = null;
+    if(selectiveMode){
+      const checked = [...document.querySelectorAll('.selMemberChk:checked')].map(c=>c.value);
+      if(checked.length === 0){ showErr('groupMsgErr','حداقل یه نفر رو انتخاب کن یا حالت خاص رو خاموش کن'); return; }
+      visibleTo = [...checked, currentUser.id];
+    }
+    const { error } = await sb.from('group_messages').insert({ group_id: currentGroup.id, sender_id: currentUser.id, body:text, image_url:imageUrl, visible_to: visibleTo });
+    if(error) throw error;
+    $('groupMsgInput').value=''; pendingGroupImage=null; $('groupImgPreviewWrap').innerHTML='';
+    selectiveMode=false; $('selectivePanel').style.display='none';
+    loadGroupMessages();
+  }catch(e){ showErr('groupMsgErr', e.message||'ارسال نشد'); }
+}
+
+/* ---------------- channels ---------------- */
+let currentChannel = null;
+let currentPost = null;
+let pendingPostMedia = null;
+let myChannel = null;
+
+async function renderChannels(){
+  const { data: mine } = await sb.from('channels').select('*').eq('owner_id', currentUser.id).maybeSingle();
+  myChannel = mine || null;
+  const box = $('myChannelBox');
+  if(myChannel){
+    box.innerHTML = `<h3>کانال من</h3><div class="contact-row" style="cursor:pointer;" onclick='openChannel(${JSON.stringify({id:myChannel.id,name:myChannel.name})})'>
+      <div class="contact-info"><b>📢 ${escapeHtml(myChannel.name)}</b></div><span class="mini-btn">مدیریت</span></div>`;
+  }else{
+    box.innerHTML = `<h3>کانال بساز</h3><input type="text" id="newChannelName" placeholder="اسم کانال">
+      <div class="err" id="channelCreateErr"></div>
+      <button class="btn btn-primary" onclick="createChannel()" id="createChannelBtn">➕ ساخت کانال</button>`;
+  }
+  const wrap = $('channelList'); wrap.innerHTML = '<div class="spinner"></div>';
+  const { data: rows } = await sb.from('channels').select('*').order('created_at', {ascending:false});
+  if(!rows || rows.length===0){ wrap.innerHTML = '<div class="empty-sea">هنوز کانالی نیست.</div>'; return; }
+  wrap.innerHTML = rows.map(c => `
+    <div class="contact-row" style="cursor:pointer;" onclick='openChannel(${JSON.stringify({id:c.id, name:c.name})})'>
+      <div class="contact-info"><b>📢 ${escapeHtml(c.name)}</b></div><span class="mini-btn">باز کردن</span>
+    </div>`).join('');
+}
+async function createChannel(){
+  hideErr('channelCreateErr');
+  const name = $('newChannelName').value.trim();
+  if(!name){ showErr('channelCreateErr','اسم کانال رو بنویس'); return; }
+  $('createChannelBtn').disabled = true;
+  try{
+    const { error } = await sb.from('channels').insert({ owner_id: currentUser.id, name });
+    if(error) throw error;
+    renderChannels();
+  }catch(e){ showErr('channelCreateErr', e.message||'ساخته نشد'); }
+  $('createChannelBtn').disabled = false;
+}
+async function openChannel(c){
+  currentChannel = c;
+  $('channelFeedTitle').textContent = c.name;
+  pendingPostMedia = null; $('postInput').value=''; $('postMediaPreview').innerHTML='';
+  goTo('channelFeed');
+  $('newPostBox').style.display = (myChannel && myChannel.id === c.id) ? 'block' : 'none';
+  await loadChannelPosts();
+}
+async function loadChannelPosts(){
+  const wrap = $('channelPostList'); wrap.innerHTML = '<div class="spinner"></div>';
+  const { data: rows } = await sb.from('channel_posts').select('*').eq('channel_id', currentChannel.id).order('created_at', {ascending:false});
+  if(!rows || rows.length===0){ wrap.innerHTML = '<div class="empty-sea">هنوز پستی نیست.</div>'; return; }
+  wrap.innerHTML = rows.map(p => {
+    const d = new Date(p.created_at); const dateStr = isNaN(d)?'':d.toLocaleDateString('fa-IR');
+    return `<div class="msg-item" style="cursor:pointer;" onclick='openPost(${JSON.stringify({id:p.id})})'>
+      ${p.body ? `<div class="txt">${escapeHtml(p.body)}</div>` : ''}
+      ${p.image_url ? `<img src="${p.image_url}">` : ''}
+      ${p.video_url ? `<video src="${p.video_url}" controls style="max-width:100%; border-radius:10px; margin-top:8px;"></video>` : ''}
+      <div class="date">${dateStr} · 💬 کامنت‌ها</div>
+    </div>`;
+  }).join('');
+}
+function handlePostMedia(e){
+  const file = e.target.files[0]; if(!file) return;
+  const isVideo = file.type.startsWith('video/');
+  if(isVideo){
+    getTodayUsage().then(used => {
+      if(used + file.size > DAILY_QUOTA_BYTES){ showErr('postErr','سهمیه‌ی ۱۰ مگ امروزت پره'); $('postMediaInput').value=''; return; }
+      pendingPostMedia = { blob:file, bytes:file.size, video:true };
+      $('postMediaPreview').innerHTML = `<div class="img-preview">🎬 ویدیو انتخاب شد<button class="rm" onclick="removePostMedia()">✕</button></div>`;
+    });
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW=800, scale=Math.min(1,maxW/img.width);
+      const canvas=document.createElement('canvas'); canvas.width=img.width*scale; canvas.height=img.height*scale;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      canvas.toBlob(async blob => {
+        const used = await getTodayUsage();
+        if(used + blob.size > DAILY_QUOTA_BYTES){ showErr('postErr','سهمیه‌ی ۱۰ مگ امروزت پره'); $('postMediaInput').value=''; return; }
+        pendingPostMedia = { blob, bytes: blob.size, video:false };
+        $('postMediaPreview').innerHTML = `<div class="img-preview"><img src="${canvas.toDataURL('image/jpeg',0.75)}"><button class="rm" onclick="removePostMedia()">✕</button></div>`;
+      }, 'image/jpeg', 0.75);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function removePostMedia(){ pendingPostMedia=null; $('postMediaPreview').innerHTML=''; $('postMediaInput').value=''; }
+
+async function publishPost(){
+  hideErr('postErr');
+  const body = $('postInput').value.trim();
+  if(!body && !pendingPostMedia){ showErr('postErr','یه متن یا عکس/ویدیو بذار'); return; }
+  try{
+    let imageUrl=null, videoUrl=null;
+    if(pendingPostMedia){
+      const ext = pendingPostMedia.video ? 'mp4' : 'jpg';
+      const path = currentUser.id + '/' + Date.now() + '.' + ext;
+      const { error: upErr } = await sb.storage.from('media').upload(path, pendingPostMedia.blob, { contentType: pendingPostMedia.video?'video/mp4':'image/jpeg' });
+      if(upErr) throw upErr;
+      const { data: pub } = sb.storage.from('media').getPublicUrl(path);
+      if(pendingPostMedia.video) videoUrl = pub.publicUrl; else imageUrl = pub.publicUrl;
+      const today = new Date().toISOString().slice(0,10);
+      const used = await getTodayUsage();
+      await sb.from('upload_quota').upsert({ user_id: currentUser.id, day: today, bytes_used: used + pendingPostMedia.bytes });
+    }
+    const { error } = await sb.from('channel_posts').insert({ channel_id: currentChannel.id, author_id: currentUser.id, body: body||null, image_url:imageUrl, video_url:videoUrl });
+    if(error) throw error;
+    $('postInput').value=''; pendingPostMedia=null; $('postMediaPreview').innerHTML='';
+    loadChannelPosts();
+  }catch(e){ showErr('postErr', e.message||'منتشر نشد'); }
+}
+async function openPost(p){
+  const { data: post } = await sb.from('channel_posts').select('*').eq('id', p.id).single();
+  currentPost = post;
+  goTo('postDetail');
+  $('postDetailContent').innerHTML = `
+    ${post.body ? `<div class="letter-card"><div class="letter-text" style="font-size:17px;">${escapeHtml(post.body)}</div>
+    ${post.image_url ? `<img src="${post.image_url}">` : ''}
+    ${post.video_url ? `<video src="${post.video_url}" controls style="max-width:100%; border-radius:10px; margin-top:10px;"></video>` : ''}
+    </div>` : `${post.image_url ? `<img src="${post.image_url}" style="width:100%; border-radius:12px;">` : ''}${post.video_url ? `<video src="${post.video_url}" controls style="width:100%; border-radius:12px;"></video>` : ''}`}
+  `;
+  loadComments();
+}
+async function loadComments(){
+  const wrap = $('commentList'); wrap.innerHTML = '<div class="spinner"></div>';
+  const { data: rows } = await sb.from('channel_comments').select('*').eq('post_id', currentPost.id).order('created_at', {ascending:true});
+  if(!rows || rows.length===0){ wrap.innerHTML = '<div class="empty-sea">هنوز کامنتی نیست.</div>'; return; }
+  const authorIds = [...new Set(rows.map(r=>r.author_id))];
+  const { data: profiles } = await sb.from('profiles').select('id, username').in('id', authorIds);
+  const profMap = {}; (profiles||[]).forEach(p=>profMap[p.id]=p.username);
+  wrap.innerHTML = rows.map(c => `<div class="msg-item" style="padding:10px 14px;">
+    <div class="from" style="margin-bottom:4px;"><span>${escapeHtml(profMap[c.author_id]||'؟')}</span></div>
+    <div style="font-size:13.5px;">${escapeHtml(c.body)}</div>
+  </div>`).join('');
+}
+async function postComment(){
+  const body = $('commentInput').value.trim();
+  if(!body) return;
+  const { error } = await sb.from('channel_comments').insert({ post_id: currentPost.id, author_id: currentUser.id, body });
+  if(!error){ $('commentInput').value=''; loadComments(); }
+}
+
+function escapeHtml(str){ const div=document.createElement('div'); div.textContent=str||''; return div.innerHTML; }
+
+/* ---------------- init ---------------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
+}
+(async function init(){
+  applySettings();
+  const { data: { session } } = await sb.auth.getSession();
+  if(session){ await loadSession(); goHome(); }
+  else{ goTo('auth'); }
+})();
+</script>
+</body>
+</html>
